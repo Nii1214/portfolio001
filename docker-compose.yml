@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  springboot:
+    build:
+      context: ./springboot-app
+    container_name: springboot-app
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+    ports:
+      - "8080:8080"
+
+  nextjs:
+    build:
+      context: ./nextjs-app
+    container_name: nextjs-app
+    depends_on:
+      - springboot
+    ports:
+      - "3000:3000"
+
+volumes:
+  mysql-data:
